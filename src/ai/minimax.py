@@ -36,7 +36,7 @@ class Minimax:
         # best_movement = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE])) #minimax algorithm
         
         node = Node(0, state, None)
-        best_move = self.minimax(node, 2, True)
+        best_move = self.minimax(node, 3, True)
 
         move = best_move.selected_child.movement
 
@@ -110,7 +110,8 @@ class Minimax:
         jumlahin
         dapat
 
-        ini code yang masih work untuk player 1 aja 
+        ini code yang masih work untuk player 1 aja
+
         '''
         jumlah =0
 
@@ -168,7 +169,6 @@ class Minimax:
                             else:
                                 sum += 1
                         jumlah = jumlah - sum
-        print("jumlah= "+str(jumlah))
         return jumlah
 
     def get_adjacent(self,state, x, y) -> List[List[int]]:
