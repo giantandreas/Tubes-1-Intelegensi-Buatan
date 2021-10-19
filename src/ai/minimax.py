@@ -32,19 +32,19 @@ class Minimax:
 
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
         self.thinking_time = time() + thinking_time
-    
-        # best_movement = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE])) #minimax algorithm
-        
+            
         node = Node(0, state, None)
-        best_move = self.minimax(node, 3, True)
+        best_move = self.minimax(node, 1, True, n_player)
 
         move = best_move.selected_child.movement
+
+        print("Selected value= "+str(best_move.selected_child.value))
 
         best_movement= (move[0], move[1])
 
         return best_movement
 
-    def minimax(self, node: Node, depth: int, max:bool) -> Node:
+    def minimax(self, node: Node, depth: int, max:bool, n_player:int) -> Node:
         '''
         Melakukan pembangunan node tree sekaligus menjalankan algoritma minimax
         alpha beta prunning masi belum di implementasikan
@@ -55,19 +55,19 @@ class Minimax:
 
         # Jika sudah mencapai batas kedalaman tree atau salah satu pemain menang
         if depth==0 or is_win(node.state.board):
-            node.value = self.state_evaluator(node.state)
+            node.value = self.state_evaluator(node.state, n_player)
             return node
         
         if max:     # jika memaksimalkan
             maxEval = -9999
-            neighbour = self.state_generator(node.state, 0)
+            neighbour = self.state_generator(node.state, n_player)
 
             for n in neighbour:
                 move = (n[1], n[2])
                 node.add_child(n[0], move)
             
             for child in node.children:
-                eval = self.minimax(child, depth-1, False)
+                eval = self.minimax(child, depth-1, False, n_player)
                 if eval.value > maxEval:
                     maxEval = eval.value
                     node.selected_child = eval
@@ -77,14 +77,14 @@ class Minimax:
         
         else:       # jika meminimalkan
             minEval = 9999
-            neighbour = self.state_generator(node.state, 1)
+            neighbour = self.state_generator(node.state, abs(n_player-1))
 
             for n in neighbour:
                 move = (n[1], n[2])
                 node.add_child(n[0], move)
             
             for child in node.children:
-                eval = self.minimax(child, depth-1, True)
+                eval = self.minimax(child, depth-1, True, n_player)
                 if eval.value < minEval:
                     minEval = eval.value
                     node.selected_child = eval
@@ -93,7 +93,7 @@ class Minimax:
             return node
         
 
-    def state_evaluator(self, state: State):
+    def state_evaluator(self, state: State, n_player:int):
         '''
         rencana state evalutaor
         kan punya kita shape nya circle warnanya merah
@@ -116,9 +116,10 @@ class Minimax:
         jumlah =0
 
         # pada kasus salah satu player menang
+        print("##############################")
         win = is_win(state.board)
         if win:
-            if win[0] == ShapeConstant.CIRCLE and win[1] == ColorConstant.RED:
+            if win[0] == state.players[n_player].shape and win[1] == state.players[n_player].color:
                 return 999
             else:
                 return -999
@@ -129,46 +130,46 @@ class Minimax:
                     next
                 else:
                     # by shape
-                    sum = 0
                     adj = self.get_adjacent(state, i, j)
-                    if state.board.board[i][j].shape == ShapeConstant.CIRCLE:
+                    if state.board.board[i][j].shape == state.players[n_player].shape:
+                        print("shape sendiri")
                         for pos in adj:
-                            if(state.board.board[pos[0]][pos[1]].shape == ShapeConstant.CIRCLE):
-                                sum += 2
-                            elif(state.board.board[pos[0]][pos[1]].shape == ShapeConstant.CROSS):
+                            if(state.board.board[pos[0]][pos[1]].shape == state.players[n_player].shape):
+                                jumlah += 5
+                            elif(state.board.board[pos[0]][pos[1]].shape == state.players[abs(n_player-1)].shape):
                                 next
                             else:
-                                sum += 1
-                        jumlah = jumlah + sum
+                                jumlah += 1
                     else:
+                        print("shape musuh")
                         for pos in adj:
-                            if(state.board.board[pos[0]][pos[1]].shape == ShapeConstant.CROSS):
-                                sum += 2
-                            elif(state.board.board[pos[0]][pos[1]].shape == ShapeConstant.CIRCLE):
+                            if(state.board.board[pos[0]][pos[1]].shape == state.players[abs(n_player-1)].shape):
+                                jumlah -= 5
+                            elif(state.board.board[pos[0]][pos[1]].shape == state.players[n_player].shape):
                                 next
                             else:
-                                sum += 1
-                        jumlah = jumlah - sum
-                    
-                    sum = 0
-                    if (state.board.board[i][j].color == ColorConstant.RED):
+                                jumlah -= 1
+                        
+                    if (state.board.board[i][j].color == state.players[n_player].color):
+                        print("color sendiri")
                         for pos in adj:
-                            if(state.board.board[pos[0]][pos[1]].color == ColorConstant.RED):
-                                sum += 2
-                            elif(state.board.board[pos[0]][pos[1]].color == ColorConstant.BLUE):
+                            if(state.board.board[pos[0]][pos[1]].color == state.players[n_player].color):
+                                jumlah += 5
+                            elif(state.board.board[pos[0]][pos[1]].color == state.players[abs(n_player-1)].color):
                                 next
                             else:
-                                sum += 1
-                        jumlah = jumlah + sum
+                                jumlah += 1
+
                     else:
+                        print("color musuh")
                         for pos in adj:
-                            if(state.board.board[pos[0]][pos[1]].color == ColorConstant.BLUE):
-                                sum += 2
-                            elif(state.board.board[pos[0]][pos[1]].color == ColorConstant.RED):
+                            if(state.board.board[pos[0]][pos[1]].color == state.players[abs(n_player-1)].color):
+                                jumlah -= 5
+                            elif(state.board.board[pos[0]][pos[1]].color == state.players[n_player].color):
                                 next
                             else:
-                                sum += 1
-                        jumlah = jumlah - sum
+                                jumlah -= 1
+
         return jumlah
 
     def get_adjacent(self,state, x, y) -> List[List[int]]:
