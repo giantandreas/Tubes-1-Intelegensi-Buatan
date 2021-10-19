@@ -1,5 +1,3 @@
-from os import stat
-import random
 from time import time
 import copy
 
@@ -34,7 +32,7 @@ class Minimax:
         self.thinking_time = time() + thinking_time
             
         node = Node(0, state, None)
-        best_move = self.minimax(node, 1, True, n_player)
+        best_move = self.minimax(node, 4, -99999, 99999, True, n_player)
 
         move = best_move.selected_child.movement
 
@@ -44,7 +42,7 @@ class Minimax:
 
         return best_movement
 
-    def minimax(self, node: Node, depth: int, max:bool, n_player:int) -> Node:
+    def minimax(self, node: Node, depth: int, alpha, beta, max:bool, n_player:int) -> Node:
         '''
         Melakukan pembangunan node tree sekaligus menjalankan algoritma minimax
         alpha beta prunning masi belum di implementasikan
@@ -59,7 +57,7 @@ class Minimax:
             return node
         
         if max:     # jika memaksimalkan
-            maxEval = -9999
+            maxEval = -99999
             neighbour = self.state_generator(node.state, n_player)
 
             for n in neighbour:
@@ -67,16 +65,22 @@ class Minimax:
                 node.add_child(n[0], move)
             
             for child in node.children:
-                eval = self.minimax(child, depth-1, False, n_player)
+                eval = self.minimax(child, depth-1, alpha, beta, False, n_player)
                 if eval.value > maxEval:
                     maxEval = eval.value
                     node.selected_child = eval
+                
+                if alpha < maxEval:
+                    alpha = maxEval
+                # prunning
+                if beta <= alpha:
+                    break
             
             node.value = maxEval
             return node
         
         else:       # jika meminimalkan
-            minEval = 9999
+            minEval = 99999
             neighbour = self.state_generator(node.state, abs(n_player-1))
 
             for n in neighbour:
@@ -84,10 +88,14 @@ class Minimax:
                 node.add_child(n[0], move)
             
             for child in node.children:
-                eval = self.minimax(child, depth-1, True, n_player)
+                eval = self.minimax(child, depth-1, alpha, beta, True, n_player)
                 if eval.value < minEval:
                     minEval = eval.value
                     node.selected_child = eval
+                
+                beta = min(beta, minEval)
+                if beta <= alpha:
+                    break
             
             node.value = minEval
             return node
@@ -169,7 +177,6 @@ class Minimax:
         count_own_color = 0
         count_enemy_shape = 0
         count_enemy_color = 0
-
         for pos in window:
             # empty
             if state.board.board[pos[0]][pos[1]].color == ColorConstant.BLACK:
