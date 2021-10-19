@@ -95,121 +95,121 @@ class Minimax:
 
     def state_evaluator(self, state: State, n_player:int):
         '''
-        rencana state evalutaor
-        kan punya kita shape nya circle warnanya merah
+        [DESC]
+        Fungsi untuk mengembalikan nilai angka dari suatu state
+        
+        [PARAMS]
+        state --> State dari game
+        n_player --> 0 untuk player 1 dan 1 untuk player 2
 
-        evaluator = shape + color
-        ## evaluasi by color
-        setiap kolom adjacent 
+        [RETURN]
+        integer nilai dari state
 
-        ## evaluasi by shape
-        setiap kolom adjacent
+        [MEKANISME]
+        mengecek 4 kotak (window) secara horizontal, vertikal maupun diagonal
 
-        jika shape bukan circle ataupun warna merah, negatifin 
-
-        jumlahin
-        dapat
-
-        ini code yang masih work untuk player 1 aja
 
         '''
-        jumlah =0
-
         # pada kasus salah satu player menang
-        print("##############################")
         win = is_win(state.board)
         if win:
             if win[0] == state.players[n_player].shape and win[1] == state.players[n_player].color:
-                return 999
+                return 9999
             else:
-                return -999
+                return -9999
 
+        state_value = 0
+       # pengecekan window secara vertikal
+        window = []
         for i in range(state.board.row):
-            for j in range(state.board.col):
-                if (state.board.board[i][j].color == ColorConstant.BLACK):
-                    next
+            for j in range(state.board.col - 3):
+                for k in range(4):
+                    pos = (i, j+k)
+                    window.append(pos)
+                state_value += self.window_evaluator(state, window, n_player)
+        
+       # pengecekan window secara horizontal
+        window.clear()
+        for j in range(state.board.col):
+            for i in range(state.board.row -3):
+                for k in range(4):
+                    pos = (i+k, j)
+                    window.append(pos)
+                state_value += self.window_evaluator(state, window, n_player)
+
+       # pengekan window secara diagonal naik
+        window.clear()
+        for i in range(state.board.row -3):
+            for j in range(state.board.col -3):
+                for k in range(4):
+                    pos = (i+k, j+k)
+                    window.append(pos)
+                state_value += self.window_evaluator(state, window, n_player)
+
+       # pengekan window secara diagonal turun
+        window.clear()
+        for i in range(3,state.board.row):
+            for j in range(state.board.col-3):
+                for k in range(4):
+                    pos = (i-k, j+k)
+                    window.append(pos)
+                state_value += self.window_evaluator(state, window, n_player)
+            
+        return state_value
+
+    def window_evaluator(self, state: State, window: List[Tuple[int, int]], n_player:int):
+        '''
+        Fungsi yang mengembalikan nilai dari suatu window
+        '''
+
+        score = 0
+        # menghitung shape, color dan empty di window
+        count_own_shape = 0
+        count_empty = 0
+        count_own_color = 0
+        count_enemy_shape = 0
+        count_enemy_color = 0
+
+        for pos in window:
+            # empty
+            if state.board.board[pos[0]][pos[1]].color == ColorConstant.BLACK:
+                count_empty += 1
+            else:
+                # shape
+                if state.board.board[pos[0]][pos[1]].shape == state.players[n_player].shape:
+                    count_own_shape += 1
                 else:
-                    # by shape
-                    adj = self.get_adjacent(state, i, j)
-                    if state.board.board[i][j].shape == state.players[n_player].shape:
-                        print("shape sendiri")
-                        for pos in adj:
-                            if(state.board.board[pos[0]][pos[1]].shape == state.players[n_player].shape):
-                                jumlah += 5
-                            elif(state.board.board[pos[0]][pos[1]].shape == state.players[abs(n_player-1)].shape):
-                                next
-                            else:
-                                jumlah += 1
-                    else:
-                        print("shape musuh")
-                        for pos in adj:
-                            if(state.board.board[pos[0]][pos[1]].shape == state.players[abs(n_player-1)].shape):
-                                jumlah -= 5
-                            elif(state.board.board[pos[0]][pos[1]].shape == state.players[n_player].shape):
-                                next
-                            else:
-                                jumlah -= 1
-                        
-                    if (state.board.board[i][j].color == state.players[n_player].color):
-                        print("color sendiri")
-                        for pos in adj:
-                            if(state.board.board[pos[0]][pos[1]].color == state.players[n_player].color):
-                                jumlah += 5
-                            elif(state.board.board[pos[0]][pos[1]].color == state.players[abs(n_player-1)].color):
-                                next
-                            else:
-                                jumlah += 1
+                    count_enemy_shape +=1
+                # color
+                if state.board.board[pos[0]][pos[1]].color == state.players[n_player].color:
+                    count_own_color += 1
+                else:
+                    count_enemy_color +=1
 
-                    else:
-                        print("color musuh")
-                        for pos in adj:
-                            if(state.board.board[pos[0]][pos[1]].color == state.players[abs(n_player-1)].color):
-                                jumlah -= 5
-                            elif(state.board.board[pos[0]][pos[1]].color == state.players[n_player].color):
-                                next
-                            else:
-                                jumlah -= 1
+        # berdasarkan shape
+        if count_own_shape == 4:
+            score += 150
+        elif count_own_shape == 3 and count_empty ==1:
+            score += 10
+        elif count_own_shape == 2 and count_empty == 2:
+            score += 5
 
-        return jumlah
-
-    def get_adjacent(self,state, x, y) -> List[List[int]]:
-        adjacent = []
-
-        # atas bawah dan sudut
-        p = [x, y+1]
-        if not is_out(state.board, p[0], p[1]):
-            adjacent.append(p)
-
-            p = [x-1, y+1]
-            if not is_out(state.board, p[0], p[1]):
-                adjacent.append(p)
-            
-            p = [x+1, y+1]
-            if not is_out(state.board, p[0], p[1]):
-                adjacent.append(p)
+        if count_enemy_shape == 3 and count_empty ==1:
+            score -= 8
         
-        p = [x, y-1]
-        if not is_out(state.board, p[0], p[1]):
-            adjacent.append(p)
+        # berdasarkan color
+        if count_own_color == 4:
+            score += 200
+        elif count_own_color == 3 and count_empty ==1:
+            score += 10
+        elif count_own_color == 2 and count_empty == 2:
+            score += 5
 
-            p = [x-1, y-1]
-            if not is_out(state.board, p[0], p[1]):
-                adjacent.append(p)
-            
-            p = [x+1, y-1]
-            if not is_out(state.board, p[0], p[1]):
-                adjacent.append(p)
-        
-        # kanan kiri
-        p = [x+1, y]
-        if not is_out(state.board, p[0], p[1]):
-            adjacent.append(p)
-        
-        p = [x-1, y]
-        if not is_out(state.board, p[0], p[1]):
-            adjacent.append(p)
+        if count_enemy_color == 3 and count_empty ==1:
+            score -= 8
 
-        return adjacent
+        return score
+
 
     def state_generator(self, state:State, n_player) -> List[Tuple[State, int, ShapeConstant]]:
         # Fungsi pembangkit
