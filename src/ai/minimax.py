@@ -130,7 +130,6 @@ class Minimax:
        # pengecekan window secara horizontal
         window = []
         for i in range(state.board.row):
-            for j in range(state.board.col - 3):
                 for k in range(4):
                     pos = (i, j+k)
                     window.append(pos)
