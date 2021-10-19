@@ -141,7 +141,7 @@ class Minimax:
                                 sum += 1
                         jumlah = jumlah + sum
                     else:
-                        for pos in adj:
+                        for pos in adj: 
                             if(state.board.board[pos[0]][pos[1]].shape == ShapeConstant.CROSS):
                                 sum += 2
                             elif(state.board.board[pos[0]][pos[1]].shape == ShapeConstant.CIRCLE):
