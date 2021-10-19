@@ -1,8 +1,10 @@
 import random
 from time import time
+import copy
 
 from src.constant import ShapeConstant
 from src.model import State
+from src.utility import place
 
 from typing import Tuple, List
 
@@ -14,11 +16,11 @@ class LocalSearch:
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
         self.thinking_time = time() + thinking_time
 
-        state_value_now = state_value(state, None)
+        state_value_now = self.state_value(state)
         alt_selected_state = None
         alt_selected_state_value = 0
-        for new_state in state_generator(state,(state.round - 1) % 2 ):
-            selected_state_value = state_value(new_state[0])
+        for new_state in self.state_generator(state,(state.round - 1) % 2 ):
+            selected_state_value = self.state_value(new_state[0])
             if(selected_state_value > state_value_now):
                 best_movement = (new_state[1],new_state[2])
                 break
@@ -35,7 +37,7 @@ class LocalSearch:
     def state_value(self, state: State):
         value_color = 0
         value_shape = 0
-        for titik in (baris_titik_tertinggi(state)):    # titik : offset 0 itu kolom dan 1 itu baris
+        for titik in (self.baris_titik_tertinggi(state)):    # titik : offset 0 itu kolom dan 1 itu baris
             is_enemy_shape = state.board.board[titik[1]][titik[0]].shape == state.players[(state.round) % 2].shape 
             is_enemy_color = state.board.board[titik[1]][titik[0]].color == state.players[(state.round) % 2].color 
             if((not is_enemy_color) and (not is_enemy_shape)):
@@ -67,7 +69,7 @@ class LocalSearch:
                 shape_value_temp = 0
                 color_done = False
                 shape_done = False
-                for titik_diagonal in diagonal_1(state.board.row,state.board.col,titik):
+                for titik_diagonal in self.diagonal_1(state.board.row,state.board.col,titik):
                     if(state.board.board[titik_diagonal[1]][titik_diagonal[0]].shape == state.players[(state.round) % 2].shape and not kesamaan_bentuk_ditemukan):
                         kesamaan_bentuk_ditemukan = True
                         titik_mulai_shape = titik_diagonal
@@ -106,7 +108,7 @@ class LocalSearch:
                 shape_value_temp = 0
                 color_done = False
                 shape_done = False
-                for j in diagonal_2(state.board.row,state.board.col,titik):
+                for j in self.diagonal_2(state.board.row,state.board.col,titik):
                     if(state.board.board[titik_diagonal[1]][titik_diagonal[0]].shape == state.players[(state.round) % 2].shape and not kesamaan_bentuk_ditemukan and not shape_done):
                         kesamaan_bentuk_ditemukan = True
                         titik_mulai_shape = titik_diagonal
@@ -140,7 +142,7 @@ class LocalSearch:
 
     def baris_titik_tertinggi(self, state: State) -> List[Tuple[int,int]]:
         result = []
-        for i in range(state.board.column):
+        for i in range(state.board.col):
             baris = 0
             for j in range(state.board.row):
                 if(state.board.board[j][i].shape != "-" and state.board.board[j][i].color != "BLACK"):
