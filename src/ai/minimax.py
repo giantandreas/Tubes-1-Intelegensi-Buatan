@@ -32,7 +32,7 @@ class Minimax:
         self.thinking_time = time() + thinking_time
             
         node = Node(0, state, None)
-        best_move = self.minimax(node, 4, -99999, 99999, True, n_player)
+        best_move = self.minimax(node, 3, -99999, 99999, True, n_player)
 
         move = best_move.selected_child.movement
 
@@ -57,7 +57,7 @@ class Minimax:
             return node
         
         if max:     # jika memaksimalkan
-            maxEval = -99999
+            maxEval = -999999
             neighbour = self.state_generator(node.state, n_player)
 
             for n in neighbour:
@@ -80,7 +80,7 @@ class Minimax:
             return node
         
         else:       # jika meminimalkan
-            minEval = 99999
+            minEval = 999999
             neighbour = self.state_generator(node.state, abs(n_player-1))
 
             for n in neighbour:
@@ -122,12 +122,12 @@ class Minimax:
         win = is_win(state.board)
         if win:
             if win[0] == state.players[n_player].shape and win[1] == state.players[n_player].color:
-                return 9999
+                return 99999
             else:
-                return -9999
+                return -99999
 
         state_value = 0
-       # pengecekan window secara vertikal
+       # pengecekan window secara horizontal
         window = []
         for i in range(state.board.row):
             for j in range(state.board.col - 3):
@@ -136,7 +136,7 @@ class Minimax:
                     window.append(pos)
                 state_value += self.window_evaluator(state, window, n_player)
         
-       # pengecekan window secara horizontal
+       # pengecekan window secara vertikal
         window.clear()
         for j in range(state.board.col):
             for i in range(state.board.row -3):
@@ -168,12 +168,13 @@ class Minimax:
     def window_evaluator(self, state: State, window: List[Tuple[int, int]], n_player:int):
         '''
         Fungsi yang mengembalikan nilai dari suatu window
+
         '''
 
         score = 0
         # menghitung shape, color dan empty di window
-        count_own_shape = 0
         count_empty = 0
+        count_own_shape = 0
         count_own_color = 0
         count_enemy_shape = 0
         count_enemy_color = 0
@@ -196,23 +197,23 @@ class Minimax:
         # berdasarkan shape
         if count_own_shape == 4:
             score += 150
-        elif count_own_shape == 3 and count_empty ==1:
+        elif count_own_shape == 3 and count_empty == 1:
             score += 10
         elif count_own_shape == 2 and count_empty == 2:
             score += 5
 
-        if count_enemy_shape == 3 and count_empty ==1:
+        if count_enemy_shape == 3 and count_empty == 1:
             score -= 8
         
         # berdasarkan color
         if count_own_color == 4:
-            score += 200
-        elif count_own_color == 3 and count_empty ==1:
+            score += 150
+        elif count_own_color == 3 and count_empty == 1:
             score += 10
         elif count_own_color == 2 and count_empty == 2:
             score += 5
 
-        if count_enemy_color == 3 and count_empty ==1:
+        if count_enemy_color == 3 and count_empty == 1:
             score -= 8
 
         return score
