@@ -26,7 +26,7 @@ class Node:
 ############################################
 
 
-class Minimax:
+class MinimaxGroup22:
     def __init__(self):
         pass
 
@@ -34,7 +34,7 @@ class Minimax:
         self.thinking_time = time() + thinking_time
         node = Node(0, state, None)
         
-        best_move = self.minimax(node, 4, -math.inf, math.inf, True, n_player)
+        best_move = self.minimax(node, 3, -math.inf, math.inf, True, n_player)
         
         move = best_move.selected_child.movement
         best_movement= (move[0], move[1])

@@ -8,7 +8,7 @@ from src.utility import is_out, is_win, place
 from typing import Tuple, List
 
 
-class LocalSearch:
+class LocalSearchGroup22:
     def __init__(self):
         pass
 
