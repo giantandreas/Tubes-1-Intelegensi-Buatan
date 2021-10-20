@@ -1,6 +1,7 @@
 from time import time
 import copy
 
+
 import math
 from src.constant import ColorConstant, ShapeConstant
 from src.model import State
@@ -8,7 +9,7 @@ from src.utility import is_out, is_win, place
 
 from typing import Tuple, List
 
-############################################
+####################
 
 class Node:
     # kelas untuk membangun tree dari minimax
@@ -31,28 +32,31 @@ class Minimax:
 
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
         self.thinking_time = time() + thinking_time
-            
         node = Node(0, state, None)
+        
         best_move = self.minimax(node, 4, -math.inf, math.inf, True, n_player)
-
-        print("child: ")
-        for child in node.children:
-            print (str(child.value) + "<-->" + str(child.movement))
+        
         move = best_move.selected_child.movement
-
-        print("Selected value= "+str(best_move.selected_child.value))
-
         best_movement= (move[0], move[1])
-        print(best_movement)
-
         return best_movement
 
     def minimax(self, node: Node, depth: int, alpha, beta, max:bool, n_player:int) -> Node:
         '''
+        [DESC]
         Melakukan pembangunan node tree sekaligus menjalankan algoritma minimax
-        alpha beta prunning masi belum di implementasikan
+        dengan alpha beta prunning
+        merupakan fungsi rekursif dengan base depth=0 atau kondisi terminate
+        Memodifikasi nilai value dan movement dari node
 
-        merupakan fungsi rekursif dengan base depth=0 atau kondisi menang
+        [PARAMS]
+        node        --> Node Class
+        depth       --> int batas kedalaman tree yang akan dibuka
+        alpha, beta --> int awal alpha dan beta, initial: alpha= -infinite, beta= infinite
+        max         --> true jika maximizing dan false jika minimizing
+        n_player    --> 0 untuk player 1 dan 1 untuk player 2
+
+        [RETURN]
+        Node yang sudah di evaluasi dan dijalankan minimax
 
         '''
 
@@ -127,7 +131,6 @@ class Minimax:
         win = is_win(state.board)
         if win:
             if win[0] == state.players[n_player].shape and win[1] == state.players[n_player].color:
-                
                 return 9999 + depth*1000
             else:
                 return -9999 - depth*1000
@@ -173,8 +176,16 @@ class Minimax:
 
     def window_evaluator(self, state: State, window: List[Tuple[int, int]], n_player:int):
         '''
-        Fungsi yang mengembalikan nilai dari suatu window
+        Fungsi yang mengembalikan nilai evaluasi dari suatu window
+        window merupakan list of posisition yang berisi 4 posisi yang akan dinilai dengan suatu ketentuan
 
+        [PARAMS]
+        state   --> state game
+        window  --> list of tuple (int, int)
+        n_player--> 0 untuk player 1 dan 1 untuk player 2
+
+        [RETURN]
+        int value dari window
         '''
 
         score = 0
@@ -226,10 +237,22 @@ class Minimax:
 
 
     def state_generator(self, state:State, n_player) -> List[Tuple[State, int, ShapeConstant]]:
-        # Fungsi pembangkit
-        # membangkitkan semua kemungkinan langkah yang bisa diambil saat ini
-        # mereturn List dari tuple yang berisi State, int col, dan Shape Constant dari movement
-        # ada 2 * number of column kemungkinan 
+        '''
+        [DESC]
+        Fungsi pembangkit
+        membangkitkan semua kemungkinan langkah yang bisa diambil saat ini
+        mereturn List dari tuple yang berisi State, int col, dan Shape Constant 
+        dari movement dari state awal ke state baru
+        ada 2 * number of column kemungkinan 
+
+        [PARAMS]
+        state   --> state dari game
+        n_player--> 0 untuk player 1 dan 1 untuk player 2
+
+        [RETURN]
+        List of tuple yang bersisi state, int kolom yang dipilih, dan ShapeConstant yang dipilih
+        '''
+        
 
         neighbour = []
         for j in range(state.board.col):
