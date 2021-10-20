@@ -1,6 +1,7 @@
 from time import time
 import copy
 
+import math
 from src.constant import ColorConstant, ShapeConstant
 from src.model import State
 from src.utility import is_out, is_win, place
@@ -32,13 +33,17 @@ class Minimax:
         self.thinking_time = time() + thinking_time
             
         node = Node(0, state, None)
-        best_move = self.minimax(node, 3, -99999, 99999, True, n_player)
+        best_move = self.minimax(node, 4, -math.inf, math.inf, True, n_player)
 
+        print("child: ")
+        for child in node.children:
+            print (str(child.value) + "<-->" + str(child.movement))
         move = best_move.selected_child.movement
 
         print("Selected value= "+str(best_move.selected_child.value))
 
         best_movement= (move[0], move[1])
+        print(best_movement)
 
         return best_movement
 
@@ -53,11 +58,11 @@ class Minimax:
 
         # Jika sudah mencapai batas kedalaman tree atau salah satu pemain menang
         if depth==0 or is_win(node.state.board):
-            node.value = self.state_evaluator(node.state, n_player)
+            node.value = self.state_evaluator(node.state, n_player, depth)
             return node
         
         if max:     # jika memaksimalkan
-            maxEval = -999999
+            maxEval = -math.inf
             neighbour = self.state_generator(node.state, n_player)
 
             for n in neighbour:
@@ -80,7 +85,7 @@ class Minimax:
             return node
         
         else:       # jika meminimalkan
-            minEval = 999999
+            minEval = math.inf
             neighbour = self.state_generator(node.state, abs(n_player-1))
 
             for n in neighbour:
@@ -101,7 +106,7 @@ class Minimax:
             return node
         
 
-    def state_evaluator(self, state: State, n_player:int):
+    def state_evaluator(self, state: State, n_player:int, depth):
         '''
         [DESC]
         Fungsi untuk mengembalikan nilai angka dari suatu state
@@ -122,9 +127,10 @@ class Minimax:
         win = is_win(state.board)
         if win:
             if win[0] == state.players[n_player].shape and win[1] == state.players[n_player].color:
-                return 99999
+                
+                return 9999 + depth*1000
             else:
-                return -99999
+                return -9999 - depth*1000
 
         state_value = 0
        # pengecekan window secara horizontal
@@ -230,7 +236,7 @@ class Minimax:
             # untuk circle
             copy_state = copy.deepcopy(state)
             temp_state = place(copy_state, n_player, ShapeConstant.CIRCLE, j)
-            if temp_state:
+            if temp_state != -1:
                 neighbour.append((copy_state, j, ShapeConstant.CIRCLE))
 
             # untuk cross

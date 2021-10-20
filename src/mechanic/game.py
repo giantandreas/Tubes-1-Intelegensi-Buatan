@@ -96,7 +96,6 @@ class Game:
                 choosen_col, choosen_shape = self.__input()
 
             else:  # BVB
-                print(self.bot[player_turn])
                 start = time()
                 choosen_col, choosen_shape = self.bot[player_turn].find(
                     self.state, player_turn, self.config.thinking_time
