@@ -149,17 +149,29 @@ class LocalSearch:
 
 
     def state_generator(self, state:State, n_player) -> List[Tuple[State, int, ShapeConstant]]:
-        # Fungsi pembangkit
-        # membangkitkan semua kemungkinan langkah yang bisa diambil saat ini
-        # mereturn List dari tuple yang berisi State, int col, dan Shape Constant dari movement
-        # ada 2 * number of column kemungkinan 
+        '''
+        [DESC]
+        Fungsi pembangkit
+        membangkitkan semua kemungkinan langkah yang bisa diambil saat ini
+        mereturn List dari tuple yang berisi State, int col, dan Shape Constant 
+        dari movement dari state awal ke state baru
+        ada 2 * number of column kemungkinan 
+
+        [PARAMS]
+        state   --> state dari game
+        n_player--> 0 untuk player 1 dan 1 untuk player 2
+
+        [RETURN]
+        List of tuple yang bersisi state, int kolom yang dipilih, dan ShapeConstant yang dipilih
+        '''
+        
 
         neighbour = []
         for j in range(state.board.col):
             # untuk circle
             copy_state = copy.deepcopy(state)
             temp_state = place(copy_state, n_player, ShapeConstant.CIRCLE, j)
-            if temp_state:
+            if temp_state != -1:
                 neighbour.append((copy_state, j, ShapeConstant.CIRCLE))
 
             # untuk cross
@@ -170,5 +182,6 @@ class LocalSearch:
                 neighbour.append((copy_state, j, ShapeConstant.CROSS))
 
         return neighbour
+
 
     
